@@ -3,7 +3,9 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"math/rand"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"go-demo/entity"
@@ -18,21 +20,22 @@ type Login struct {
 // https://liwenzhou.com/posts/Go/gin/#c-0-6-0
 func main() {
 	// 创建一个默认的路由引擎
-	r := gin.Default()
+	engine := gin.Default()
+	engine.Use(M1)
 
 	// GET：请求方式；/hello：请求的路径
-	r.GET("/hello", SayHello)
-	r.POST("/bind", Bind)
+	engine.GET("/hello", M1, SayHello)
+	engine.POST("/bind", Bind)
 
 	// 给路由分组，其实没什么作用，只是看上去更加规整一些。
-	r.Group("/upload")
+	group1 := engine.Group("/upload").Use(M1)
 	{
-		r.POST("/upload", UploadFile)
-		r.POST("/upload/files", UploadFiles)
+		group1.POST("/", UploadFile)
+		group1.POST("/files", UploadFiles)
 	}
 
 	// 启动HTTP服务，默认在0.0.0.0:8080启动服务
-	err := r.Run(":8080")
+	err := engine.Run(":8080")
 	if err != nil {
 		fmt.Printf("Gin start fail! err = %v\n", err)
 	}
@@ -87,7 +90,7 @@ func Bind(context *gin.Context) {
 	}
 }
 
-// 解析入参为 file 的
+// UploadFile  解析入参为 file 的
 func UploadFile(context *gin.Context) {
 	file, err := context.FormFile("file1")
 	if err != nil {
@@ -122,4 +125,26 @@ func UploadFiles(context *gin.Context) {
 	}
 
 	context.JSON(http.StatusOK, entity.SuccessBaseResult(nil))
+}
+
+// M1 拦截器
+func M1(context *gin.Context) {
+	fmt.Printf("M1 start!\n")
+
+	now := time.Now()
+
+	i := rand.Intn(10)
+	if i%2 == 1 {
+		fmt.Println("do Next, i =", i)
+		context.Next()
+	} else {
+		fmt.Println("do Abort, i =", i)
+		context.Abort()
+	}
+
+	cost := time.Since(now)
+
+	fmt.Printf("cost =%v\n", cost)
+
+	fmt.Printf("M1 end!\n")
 }
