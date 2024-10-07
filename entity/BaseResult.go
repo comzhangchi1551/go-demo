@@ -8,7 +8,7 @@ type BaseResult struct {
 	Data any
 }
 
-func Success(data any) BaseResult {
+func SuccessBaseResult(data any) BaseResult {
 	result := BaseResult{
 		Code: http.StatusOK,
 		Msg:  http.StatusText(http.StatusOK),
@@ -17,8 +17,8 @@ func Success(data any) BaseResult {
 	return result
 }
 
-func Fail(msg string) *BaseResult {
-	return &BaseResult{
+func FailBaseResult(msg string) BaseResult {
+	return BaseResult{
 		Code: http.StatusInternalServerError,
 		Msg:  msg,
 		Data: nil,
