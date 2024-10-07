@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Go Web</title>
+</head>
+<body>
+
+{{/* 解析 struct 传参 */}}
+<h3>book_struct</h3>
+
+<p>username：{{.bs.Username}}</p>
+<p>gender：{{.bs.Gender}}</p>
+<p>age：{{.bs.Age}}</p>
+
+<hr>
+
+{{/* 解析map传参 */}}
+{{/* with 的操作，类似于 var . = .bm 后续只需要用'.' 即可带表'.bm' */}}
+<h3>book_map and With</h3>
+
+{{with .bm}}
+    <p>username：{{.username}}</p>
+    <p>gender：{{.gender}}</p>
+    <p>age：{{.age}}</p>
+{{end}}
+
+<hr>
+
+{{/* 比较函数示例  注意：条件判断的比对数据，一定要格式相同，否则会失效 */}}
+<h3>test if</h3>
+
+{{- if lt .bm.gender "M" -}}
+    好好学习
+{{- else -}}
+    好好工作
+{{- end -}}
+
+<hr>
+
+{{/* 测试 range */}}
+<h3>test range</h3>
+
+{{ range $i, $value := .hb}}
+    index = {{$i}}, value = {{$value}}<br>
+{{else}}
+    {{/* 当hobby数组中的元素为nil的时候，会走到else */}}
+    hb is empty!
+{{end}}
+
+<hr>
+
+{{/* 测试 index，index就是拿取数组中的下标对应的值 */}}
+{{index .hb 1}}
+
+<hr>
+
+{{/* 测试自定义函数 kua */}}
+{{ kua .bs.Username}}
+
+<hr>
+
+{{/*
+    测试嵌套template
+    1. 定义嵌套模板，可以在当前文件中使用define关键字定义，也可以在另外的单独文件中定义；
+    2. 如果在当前文件中定义，直接使用即可。
+    3. 如果使用的是额外的文件定义，需要在go代码中，增加嵌套template的解析。
+ */}}
+{{template "ol.gohtml"}}
+{{template "ul.gohtml"}}
+
+</body>
+</html>
+
+{{define "ol.gohtml"}}
+    <ol>
+        <li>吃饭</li>
+        <li>睡觉</li>
+        <li>打飞机</li>
+    </ol>
+{{end}}
