@@ -3,9 +3,10 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"go-demo/entity"
-	"net/http"
 )
 
 // Login 定义一个结构体，用来接受入参
@@ -23,11 +24,18 @@ func main() {
 	r.GET("/hello", SayHello)
 	r.POST("/bind", Bind)
 
-	r.POST("/upload", UploadFile)
-	r.POST("/upload/files", UploadFiles)
+	// 给路由分组，其实没什么作用，只是看上去更加规整一些。
+	r.Group("/upload")
+	{
+		r.POST("/upload", UploadFile)
+		r.POST("/upload/files", UploadFiles)
+	}
 
 	// 启动HTTP服务，默认在0.0.0.0:8080启动服务
-	_ = r.Run(":8080")
+	err := r.Run(":8080")
+	if err != nil {
+		fmt.Printf("Gin start fail! err = %v\n", err)
+	}
 }
 
 // SayHello 使用传统方法，一个一个解析入参
@@ -69,7 +77,7 @@ func SayHello(c *gin.Context) {
 func Bind(context *gin.Context) {
 	bodyJson := Login{}
 	// Bind 和 ShouldBind 的区别在于，Bind 如果出错，会在 header 中设定 code 为 400，而 ShouldBind 并不会。
-	//err := context.Bind(&bodyJson)
+	// err := context.Bind(&bodyJson)
 	err := context.ShouldBind(&bodyJson)
 
 	if err == nil {
