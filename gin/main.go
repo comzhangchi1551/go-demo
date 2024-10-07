@@ -21,14 +21,13 @@ type Login struct {
 func main() {
 	// 创建一个默认的路由引擎
 	engine := gin.Default()
-	engine.Use(M1)
 
 	// GET：请求方式；/hello：请求的路径
 	engine.GET("/hello", M1, SayHello)
 	engine.POST("/bind", Bind)
 
 	// 给路由分组，其实没什么作用，只是看上去更加规整一些。
-	group1 := engine.Group("/upload").Use(M1)
+	group1 := engine.Group("/upload")
 	{
 		group1.POST("/", UploadFile)
 		group1.POST("/files", UploadFiles)
@@ -63,15 +62,12 @@ func SayHello(c *gin.Context) {
 	usernameFromPath := c.Param("username")
 	fmt.Println("usernameFromPath =", usernameFromPath)
 
-	c.JSON(http.StatusOK, gin.H{
-		"code": 200,
-		"msg":  "success",
-		"obj": map[string]any{
-			"param":            username,
-			"json":             &m,
-			"usernameFromPath": usernameFromPath,
-		},
-	})
+	resultMap := map[string]any{
+		"Param":            username,
+		"Json":             m,
+		"UsernameFromPath": usernameFromPath,
+	}
+	c.JSON(http.StatusOK, entity.SuccessBaseResult(resultMap))
 }
 
 // Bind 使用bind，自动将入参解析并放到绑定对象中去。
@@ -140,6 +136,8 @@ func M1(context *gin.Context) {
 	} else {
 		fmt.Println("do Abort, i =", i)
 		context.Abort()
+
+		context.JSON(http.StatusInternalServerError, entity.FailBaseResult("M1 Abort!"))
 	}
 
 	cost := time.Since(now)
