@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go-demo/controller"
 	_ "go-demo/dbope"
+	_ "go-demo/logs_ope"
 )
 
 func main() {

@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go-demo/dbope"
 	"go-demo/entity"
+	"go-demo/logs_ope"
 	"go-demo/model"
 )
 
@@ -99,8 +100,7 @@ func SearchUser(context *gin.Context) {
 
 	var users model.TempUser
 	dbope.Db.Raw("select * from temp_user where age = ?", age).Find(&users)
-
-	fmt.Println(users)
-
 	context.JSON(http.StatusOK, entity.SuccessBaseResult(users))
+
+	logs_ope.Logrus.Info("向数据查询记录")
 }
