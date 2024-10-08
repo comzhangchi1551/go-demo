@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
 	"testing"
+
+	"github.com/gin-gonic/gin"
 )
 
 func TestGin(t *testing.T) {

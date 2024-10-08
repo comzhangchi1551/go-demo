@@ -1,44 +1,15 @@
-package main
+package controller
 
 import (
 	"encoding/json"
 	"fmt"
-	"math/rand"
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
+	"go-demo/dbope"
 	"go-demo/entity"
+	"go-demo/model"
 )
-
-// Login 定义一个结构体，用来接受入参
-type Login struct {
-	Username string
-	Password string
-}
-
-// https://liwenzhou.com/posts/Go/gin/#c-0-6-0
-func main() {
-	// 创建一个默认的路由引擎
-	engine := gin.Default()
-
-	// GET：请求方式；/hello：请求的路径
-	engine.GET("/hello", M1, SayHello)
-	engine.POST("/bind", Bind)
-
-	// 给路由分组，其实没什么作用，只是看上去更加规整一些。
-	group1 := engine.Group("/upload")
-	{
-		group1.POST("/", UploadFile)
-		group1.POST("/files", UploadFiles)
-	}
-
-	// 启动HTTP服务，默认在0.0.0.0:8080启动服务
-	err := engine.Run(":8080")
-	if err != nil {
-		fmt.Printf("Gin start fail! err = %v\n", err)
-	}
-}
 
 // SayHello 使用传统方法，一个一个解析入参
 func SayHello(c *gin.Context) {
@@ -74,7 +45,7 @@ func SayHello(c *gin.Context) {
 //  1. 如果使用get请求，则只使用 Form 绑定引擎（query）。
 //  2. 如果使用post请求，首先检查 content-type 是否为 JSON 或 XML，然后再使用 Form（form-data）。
 func Bind(context *gin.Context) {
-	bodyJson := Login{}
+	bodyJson := entity.Login{}
 	// Bind 和 ShouldBind 的区别在于，Bind 如果出错，会在 header 中设定 code 为 400，而 ShouldBind 并不会。
 	// err := context.Bind(&bodyJson)
 	err := context.ShouldBind(&bodyJson)
@@ -123,26 +94,13 @@ func UploadFiles(context *gin.Context) {
 	context.JSON(http.StatusOK, entity.SuccessBaseResult(nil))
 }
 
-// M1 拦截器
-func M1(context *gin.Context) {
-	fmt.Printf("M1 start!\n")
+func SearchUser(context *gin.Context) {
+	age := context.Query("age")
 
-	now := time.Now()
+	var users model.TempUser
+	dbope.Db.Raw("select * from temp_user where age = ?", age).Find(&users)
 
-	i := rand.Intn(10)
-	if i%2 == 1 {
-		fmt.Println("do Next, i =", i)
-		context.Next()
-	} else {
-		fmt.Println("do Abort, i =", i)
-		context.Abort()
+	fmt.Println(users)
 
-		context.JSON(http.StatusInternalServerError, entity.FailBaseResult("M1 Abort!"))
-	}
-
-	cost := time.Since(now)
-
-	fmt.Printf("cost =%v\n", cost)
-
-	fmt.Printf("M1 end!\n")
+	context.JSON(http.StatusOK, entity.SuccessBaseResult(users))
 }

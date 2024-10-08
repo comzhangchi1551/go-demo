@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
-	"go-demo/entity"
 	"html/template"
 	"net/http"
+
+	"go-demo/entity"
 )
 
 func main() {
