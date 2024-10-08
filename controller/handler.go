@@ -98,7 +98,7 @@ func UploadFiles(context *gin.Context) {
 func SearchUser(context *gin.Context) {
 	age := context.Query("age")
 
-	var users model.TempUser
+	var users []model.TempUser
 	dbope.Db.Raw("select * from temp_user where age = ?", age).Find(&users)
 	context.JSON(http.StatusOK, entity.SuccessBaseResult(users))
 
